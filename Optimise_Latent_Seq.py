@@ -106,5 +106,6 @@ for t in range(parameters['T']):
 # Now save the weights and the losses
 helper_functions.save_obj(params_best, f"params_best", savepath)
 helper_functions.save_obj(params_init, f"params_init", savepath)
+helper_functions.save_obj(params, f"params", savepath)
 helper_functions.save_obj(Losses, f"L", savepath)
 helper_functions.save_obj(min_L, f"min_L", savepath)
