@@ -1,9 +1,10 @@
 # Load up a load of shit
 import numpy as np
-import jax.numpy as jnp
 from jax import vmap, value_and_grad, grad, jit, random
-from jax.example_libraries import optimizers
-import jax.nn as jnn
+try:
+    from jax.experimental import optimizers
+except:
+    from jax.example_libraries import optimizers
 import os
 from datetime import datetime
 
@@ -15,7 +16,7 @@ from NRT_functions import losses
 ###### Set a load of parameters #####
 
 parameters = {
-    'T': 1000000,
+    'T': 10000,
     'num_angs': 16,
     'print_iter': 5000,
     'random_seed': 30,
@@ -64,7 +65,7 @@ jl_pos = jit(losses.loss_pos)
 jl_weight = jit(losses.loss_weight)
 opt_init, opt_update, get_params = optimizers.adam(parameters['step_size'])
 
-def loss(params, targets, parameters):
+def loss_func(params, targets, parameters):
     return parameters['mu_fit']*losses.loss_fit(params, targets, parameters, g) + parameters['mu_act']*losses.loss_act(params, g) + parameters['mu_weight']*losses.loss_weight(params) + parameters['mu_path']*losses.loss_path(params, g) + parameters['mu_pos']*losses.loss_pos(params, g)
 
 
@@ -80,7 +81,7 @@ for run in range(parameters['Runs']):
     @jit
     def update(params, targets, opt_state):
         """ Compute the gradient for a batch and update the parameters """
-        value, grads = value_and_grad(loss)(params, targets, parameters)
+        value, grads = value_and_grad(loss_func)(params, targets, parameters)
         opt_state = opt_update(0, grads, opt_state)
         return get_params(opt_state), opt_state, value
 
@@ -100,7 +101,7 @@ for run in range(parameters['Runs']):
             L_p = jl_path(params, g)
             L_n = jl_pos(params, g)
 
-            Losses[counter,:] = [t, loss, L_f, L_a, L_w, L_p, L_n]
+            Losses[counter, :] = [t, loss, L_f, L_a, L_w, L_p, L_n]
             counter += 1
 
             print(f"Step {t}, Loss: {loss:.5f}, Fit: {L_f:.5f}, Act: {L_a:.5f}, Wei: {L_w:.5f}, W_path: {L_p:.5f}, Neg Prop: {L_n:.5f}")
