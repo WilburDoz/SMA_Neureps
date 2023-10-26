@@ -15,7 +15,7 @@ from NRT_functions import Six_Seq_helpers
 ###### Set a load of parameters #####
 
 parameters = {
-    'T': 1000000,
+    'T': 1000,
     'print_iter': 5000,
     'N': 20,
     'step_size': 1e-3,
@@ -24,7 +24,7 @@ parameters = {
 
     'mu_fit': 100,
     'mu_act': 5,
-    'mu_weight': 1,
+    'mu_weight': 5,
     'mu_pos': 500
 }
 
@@ -64,6 +64,7 @@ def loss_func(A, targets, Ts):
 
 for run in range(parameters['Runs']):
     print(f"RUN: {run}")
+    now = datetime.strftime(datetime.now(), '%H%M%S')
     key = random.PRNGKey(int(now))
     A = random.normal(key, (parameters["N"], 6))
     opt_state = opt_init(A)
